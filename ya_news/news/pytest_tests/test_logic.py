@@ -40,7 +40,7 @@ def test_user_cant_use_bad_words(news, author_client):
         form='form',
         field='text',
         errors=WARNING
-        )
+    )
     comments_count = Comment.objects.count()
     assert comments_count == 0
 
