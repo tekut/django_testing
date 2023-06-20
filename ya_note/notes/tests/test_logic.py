@@ -90,7 +90,7 @@ class TestNoteEditDelete(TestCase):
         self.assertRedirects(
             self.author_client.post(self.edit_url, data=self.new_data),
             self.done_url,
-            )
+        )
         self.note.refresh_from_db()
         self.assertEqual(self.note.text, self.NEW_NOTE_TEXT)
 
