@@ -1,7 +1,8 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from http import HTTPStatus
 
 from notes.models import Note
 
@@ -11,13 +12,13 @@ User = get_user_model()
 class TestRoutes(TestCase):
 
     def test_home_page(self):
-        '''Главная страница доступна анонимному пользователю.'''
+        """Главная страница доступна анонимному пользователю"""
         url = reverse('notes:home')
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_pages_availability(self):
-        '''Страницы регистрации, входа и выхода из учетки доступны всем.'''
+        """Страницы регистрации, входа и выхода из учетки доступны всем"""
         urls = (
             ('users:login', None),
             ('users:logout', None),
@@ -40,7 +41,7 @@ class TestRoutes(TestCase):
         )
 
     def test_availability_for_comment_edit_and_delete(self):
-        '''Страницы заметки, удаления и ред. доступны только автору'''
+        """Страницы заметки, удаления и ред. доступны только автору"""
         users_statuses = (
             (self.author, HTTPStatus.OK),
             (self.reader, HTTPStatus.NOT_FOUND),
@@ -54,7 +55,7 @@ class TestRoutes(TestCase):
                     self.assertEqual(response.status_code, status)
 
     def test_redirect_for_anonymous_client(self):
-        '''Анонимный пользователь перенаправляется на страницу логина'''
+        """Анонимный пользователь перенаправляется на страницу логина"""
         login_url = reverse('users:login')
         for name in ('notes:detail',
                      'notes:edit',
@@ -88,9 +89,9 @@ class TestAuthenticatedUserPages(TestCase):
         self.client.login(username='testuser', password='testpassword')
 
     def test_pages_availability_authenticated(self):
-        '''Аутентифицированному пользователю доступен список заметок,
-страница успешного добавления заметки,
-страница добавления новой заметки.'''
+        """Аутентифицированному пользователю доступен список заметок,
+        страница успешного добавления заметки,
+        страница добавления новой заметки"""
         for name in ('notes:list', 'notes:add', 'notes:success'):
             with self.subTest(user=User, name=name):
                 url = reverse(name)

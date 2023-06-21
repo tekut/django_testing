@@ -31,13 +31,13 @@ class TestNoteCreation(TestCase):
                          'author': cls.auth_client}
 
     def test_anonymous_user_cant_create_note(self):
-        '''Анонимный пользователь не может создать заметку'''
+        """Анонимный пользователь не может создать заметку"""
         self.client.post(self.url, data=self.form_data)
         notes_count = Note.objects.count()
         self.assertEqual(notes_count, 0)
 
     def test_user_can_create_note(self):
-        '''Залогиненный пользователь может создать заметку'''
+        """Залогиненный пользователь может создать заметку"""
         response = self.auth_client.post(self.url,
                                          data=self.form_data,
                                          follow=True,
@@ -72,21 +72,21 @@ class TestNoteEditDelete(TestCase):
                         }
 
     def test_author_can_delete_note(self):
-        '''Пользователь может удалять свои заметки'''
+        """Пользователь может удалять свои заметки"""
         response = self.author_client.delete(self.delete_url)
         self.assertRedirects(response, self.done_url)
         notes_count = Note.objects.count()
         self.assertEqual(notes_count, 0)
 
     def test_user_cant_delete_note_of_another_user(self):
-        '''Пользователь не может удалять чужие заметки'''
+        """Пользователь не может удалять чужие заметки"""
         response = self.reader_client.delete(self.delete_url)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         notes_count = Note.objects.count()
         self.assertEqual(notes_count, 1)
 
     def test_author_can_edit_note(self):
-        '''Пользователь может редактировать свои заметки'''
+        """Пользователь может редактировать свои заметки"""
         self.assertRedirects(
             self.author_client.post(self.edit_url, data=self.new_data),
             self.done_url,
@@ -95,7 +95,7 @@ class TestNoteEditDelete(TestCase):
         self.assertEqual(self.note.text, self.NEW_NOTE_TEXT)
 
     def test_user_cant_edit_note_of_another_user(self):
-        '''Пользователь не может редактировать чужие заметки'''
+        """Пользователь не может редактировать чужие заметки"""
         response = self.reader_client.post(self.edit_url, data=self.new_data)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.note.refresh_from_db()
@@ -110,14 +110,14 @@ class TestNoteSlugUniqueness(TestCase):
         cls.author_client.force_login(cls.author)
 
     def test_duplicate_slug(self):
-        '''Невозможно создать две заметки с одинаковым slug'''
+        """Невозможно создать две заметки с одинаковым slug"""
         response = self.author_client.post(
             reverse('notes:add'),
             data={'title': 'Note 1',
                   'text': 'First note',
                   'slug': 'note-slug'}
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
         response = self.author_client.post(
             reverse('notes:add'),
@@ -125,7 +125,7 @@ class TestNoteSlugUniqueness(TestCase):
                   'text': 'Second note',
                   'slug': 'note-slug'}
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertContains(response, WARNING)
 
 
@@ -137,13 +137,13 @@ class TestNoteAutoSlug(TestCase):
         cls.author_client.force_login(cls.author)
 
     def test_auto_generate_slug(self):
-        '''Если не заполнен slug, то он формируется автоматически'''
+        """Если не заполнен slug, то он формируется автоматически"""
         title = 'Пример заметки без заполненного slug'
         expected_slug = slugify(title)
         response = self.author_client.post(
             reverse('notes:add'),
             data={'title': title, 'text': 'Text without slug'}
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
         note = Note.objects.get(title=title)
         self.assertEqual(note.slug, expected_slug)
