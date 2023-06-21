@@ -11,15 +11,15 @@ pytestmark = pytest.mark.django_db
     ('news:home', 'users:login', 'users:logout', 'users:signup')
 )
 def test_pages_availability_for_anonymous_user(client, name):
-    '''Главная страница, страницы регистрации пользователей,
-    входа в учётную запись и выхода из неё доступны анонимным пользователям'''
+    """Главная страница, страницы регистрации пользователей,
+    входа в учётную запись и выхода из неё доступны анонимным пользователям"""
     url = reverse(name)
     response = client.get(url)
     assert response.status_code == HTTPStatus.OK
 
 
 def test_details_availability_for_anonymous_user(client, news):
-    '''Страница отдельной новости доступна анонимному пользователю'''
+    """Страница отдельной новости доступна анонимному пользователю"""
     url = reverse('news:detail', args=(news.pk,))
     response = client.get(url)
     assert response.status_code == HTTPStatus.OK
@@ -39,11 +39,11 @@ def test_details_availability_for_anonymous_user(client, news):
 def test_pages_availability_for_different_users(
         parametrized_client, name, comment, expected_status
 ):
-    '''Страницы удаления и редактирования комментария доступны
+    """Страницы удаления и редактирования комментария доступны
     автору комментария.
     Авторизованный пользователь не может зайти на страницы
-      редактирования или удаления чужих комментариев
-      (возвращается ошибка 404)'''
+    редактирования или удаления чужих комментариев
+    (возвращается ошибка 404"""
     url = reverse(name, args=(comment.pk,))
     response = parametrized_client.get(url)
     assert response.status_code == expected_status
@@ -57,9 +57,9 @@ def test_pages_availability_for_different_users(
     ),
 )
 def test_redirects(client, name, args):
-    '''При попытке перейти на страницу редактирования или
+    """При попытке перейти на страницу редактирования или
     удаления комментария анонимный пользователь перенаправляется
-    на страницу авторизации'''
+    на страницу авторизации"""
     login_url = reverse('users:login')
     url = reverse(name, args=args)
     expected_url = f'{login_url}?next={url}'

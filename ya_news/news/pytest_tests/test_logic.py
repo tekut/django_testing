@@ -10,14 +10,14 @@ pytestmark = pytest.mark.django_db
 
 
 def test_anonymous_user_cant_create_comment(client, news, form_data):
-    '''Анонимный пользователь не может отправить комментарий'''
+    """Анонимный пользователь не может отправить комментарий"""
     client.post(reverse('news:detail', args=(news.pk,)), data=form_data)
     comments_count = Comment.objects.count()
     assert comments_count == 0
 
 
 def test_user_can_create_comment(author_client, author, news, form_data):
-    '''Авторизованный пользователь может отправить комментарий'''
+    """Авторизованный пользователь может отправить комментарий"""
     URL = reverse('news:detail', args=(news.pk,))
     response = author_client.post(URL, data=form_data)
     assertRedirects(response, f'{URL}#comments')
@@ -30,8 +30,8 @@ def test_user_can_create_comment(author_client, author, news, form_data):
 
 
 def test_user_cant_use_bad_words(news, author_client):
-    '''Если комментарий содержит запрещённые слова,
-    он не будет опубликован, а форма вернёт ошибку'''
+    """Если комментарий содержит запрещённые слова,
+    он не будет опубликован, а форма вернёт ошибку"""
     URL = reverse('news:detail', args=(news.pk,))
     bad_words_data = {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
     response = author_client.post(URL, data=bad_words_data)
@@ -46,7 +46,7 @@ def test_user_cant_use_bad_words(news, author_client):
 
 
 def test_author_can_delete_comment(author_client, news, comment):
-    '''Авторизованный пользователь может удалять свои комментарии'''
+    """Авторизованный пользователь может удалять свои комментарии"""
     news_url = reverse('news:detail', args=(news.pk,))
     url_to_comments = news_url + '#comments'
     url_delete = reverse('news:delete', args=(comment.pk,))
@@ -57,7 +57,7 @@ def test_author_can_delete_comment(author_client, news, comment):
 
 
 def test_user_cant_delete_comment_of_another_user(admin_client, comment):
-    '''Авторизованный пользователь не может удалять чужие комментарии'''
+    """Авторизованный пользователь не может удалять чужие комментарии"""
     url_delete = reverse('news:delete', args=(comment.pk,))
     response = admin_client.delete(url_delete)
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -66,7 +66,7 @@ def test_user_cant_delete_comment_of_another_user(admin_client, comment):
 
 
 def test_author_can_edit_comment(author_client, news, comment, form_data):
-    '''Авторизованный пользователь может редактировать свои комментарии'''
+    """Авторизованный пользователь может редактировать свои комментарии"""
     NEW_COMMENT_TEXT = 'Обновлённый комментарий'
     news_url = reverse('news:detail', args=(news.pk,))
     url_edit = reverse('news:edit', args=(comment.pk,))
@@ -77,11 +77,12 @@ def test_author_can_edit_comment(author_client, news, comment, form_data):
     assert comment.text == NEW_COMMENT_TEXT
 
 
-def test_user_cant_edit_comment_of_another_user(admin_client,
-                                                comment,
-                                                form_data,
-                                                ):
-    '''Авторизованный пользователь не может редактировать чужие комментарии'''
+def test_user_cant_edit_comment_of_another_user(
+        admin_client,
+        comment,
+        form_data,
+):
+    """Авторизованный пользователь не может редактировать чужие комментарии"""
     COMMENT_TEXT = 'Текст комментария'
     url_edit = reverse('news:edit', args=(comment.pk,))
     response = admin_client.post(url_edit, data=form_data)
